@@ -33,8 +33,10 @@ class SpotRateHour:
         self.dt_local = dt_local
 
         hour_of_day = dt_local.hour
-        if (0 <= hour_of_day <= 2) or (6 <= hour_of_day <= 20):
-            price += Decimal('1.8')
+        if (0 <= hour_of_day < 2) or (5 < hour_of_day < 20):
+                price += Decimal('1.8')
+            else:
+                price += Decimal('0.2')
 
         self.price = price
 
