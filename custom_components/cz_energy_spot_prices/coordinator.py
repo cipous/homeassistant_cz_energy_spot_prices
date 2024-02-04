@@ -31,6 +31,11 @@ class SpotRateHour:
     def __init__(self, dt_utc: datetime, dt_local: datetime, price: Decimal):
         self.dt_utc = dt_utc
         self.dt_local = dt_local
+
+        hour_of_day = dt_local.hour
+        if (0 <= hour_of_day <= 2) or (6 <= hour_of_day <= 20):
+            price += Decimal('1.8')
+
         self.price = price
 
         self.most_expensive_order = 0
