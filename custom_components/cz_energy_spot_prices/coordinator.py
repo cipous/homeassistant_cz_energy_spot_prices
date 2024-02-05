@@ -38,7 +38,7 @@ class SpotRateHour:
             price += Decimal('1.8')
         else:
             price += Decimal('0.2')
-        //poplatek bezdodavateli
+#         poplatek bezdodavateli
         price+= Decimal('0.45')
         self.price = price * Decimal('1.21')
 
