@@ -35,11 +35,13 @@ class SpotRateHour:
 #     distribuce
         hour_of_day = dt_local.hour
         if (0 <= hour_of_day < 2) or (5 < hour_of_day < 20):
-            price += Decimal('1.8')
+            price += Decimal('2.155')
         else:
-            price += Decimal('0.2')
-#         poplatek bezdodavateli
-        price+= Decimal('0.45')
+            price += Decimal('0.438')
+#         poplatek delta
+        price+= Decimal('0.35')
+#         poplatek za zelenou, dan
+        price+= Decimal('0.74')
         self.price = price * Decimal('1.21')
 
         self.most_expensive_order = 0
