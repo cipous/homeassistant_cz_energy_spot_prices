@@ -31,7 +31,7 @@ class SpotRateHour:
     def __init__(self, dt_utc: datetime, dt_local: datetime, price: Decimal):
         self.dt_utc = dt_utc
         self.dt_local = dt_local
-
+        self.price = price
 #     distribuce
         hour_of_day = dt_local.hour
         if (0 <= hour_of_day < 2) or (5 < hour_of_day < 20):
@@ -42,7 +42,7 @@ class SpotRateHour:
         price+= Decimal('0.35')
 #         poplatek za zelenou, dan
         price+= Decimal('0.74')
-        self.price = price * Decimal('1.21')
+        self.final_price = price * Decimal('1.21')
 
         self.most_expensive_order = 0
 

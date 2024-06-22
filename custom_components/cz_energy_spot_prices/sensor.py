@@ -53,6 +53,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         settings=settings,
         coordinator=coordinator,
     )
+
+    final_electricity_rate_sensor = FinalRateElectricitySensor(
+        hass=hass,
+        settings=settings,
+        coordinator=coordinator,
+    )
+
     cheapest_today_electricity_sensor = CheapestTodayElectricitySensor(
         hass=hass,
         settings=settings,
@@ -111,6 +118,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     sensors = [
         electricity_rate_sensor,
+        final_electricity_rate_sensor,
         cheapest_today_electricity_sensor,
         cheapest_tomorrow_electricity_sensor,
         most_expensive_today_electricity_sensor,
@@ -272,6 +280,51 @@ class SpotRateElectricitySensor(PriceSensor):
         self._attr = attributes
         self._value = current_value
 
+
+class FinalRateElectricitySensor(PriceSensor):
+    @property
+    def unique_id(self) -> str:
+        return f'sensor.current_final_electricity_price'
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return f'Current Final Electricity Price'
+
+    def update(self, rate_data: Optional[SpotRateData]):
+        attributes: Dict[str, float] = {}
+
+        if rate_data is None:
+            self._available = False
+            self._value = None
+            self._attr = {}
+            return
+
+        try:
+            current_hour = rate_data.electricity.current_hour
+            self._available = True
+        except LookupError:
+            logger.error(
+                'Current time "%s" is not found in SpotRate values:\n%s',
+                rate_data.get_now(),
+                '\n\t'.join([dt.isoformat() for dt in rate_data.electricity.hour_for_dt.keys()]),
+            )
+            self._available = False
+            return
+
+        current_value = current_hour.final_price
+
+        for hour_data in rate_data.electricity.today_day.hours_by_dt.values():
+            dt_local = hour_data.dt_local.isoformat()
+            attributes[dt_local] = float(hour_data.final_price)
+
+        if rate_data.electricity.tomorrow_day:
+            for hour_data in rate_data.electricity.tomorrow_day.hours_by_dt.values():
+                dt_local = hour_data.dt_local.isoformat()
+                attributes[dt_local] = float(hour_data.final_price)
+
+        self._attr = attributes
+        self._value = current_value
 
 class HourFindSensor(PriceSensor):
     def find_hour(self, rate_data: Optional[SpotRateData]) -> Optional[SpotRateHour]:
